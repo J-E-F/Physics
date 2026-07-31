@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class BallMovment : MonoBehaviour
 {
@@ -8,10 +9,17 @@ public class BallMovment : MonoBehaviour
 
     [SerializeField] private float addMass = 10f;
 
+    [SerializeField] private Transform cameraFollow;
+
     public float speedofBall = 0;
 
     Vector3 lastPosition = Vector3.zero;
 
+    private void Start()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+    }
     private void FixedUpdate()
     {
         ballMove();
@@ -35,6 +43,23 @@ public class BallMovment : MonoBehaviour
 
         Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
 
+        Vector3 cameraForward = cameraFollow.forward;
+        Vector3 cameraRight = cameraFollow.right;
+
+        cameraForward.y = 0f;
+        cameraRight.y = 0f;
+
+        Vector3 movementDirection = (cameraForward * moveVertical + cameraRight * moveHorizontal);
+
+        if (movementDirection.magnitude > 0.1f)
+        {
+            movement = movementDirection;
+        }
+        else
+        {
+            movement = Vector3.zero;
+        }
+
         rb.AddForce(movement * speed);
 
         Debug.Log(moveHorizontal);
@@ -45,7 +70,7 @@ public class BallMovment : MonoBehaviour
     {
         if (Input.GetKey(KeyCode.Space))
         {
-            addMass += 1f * 9.81f;
+            addMass += 0.3f * 9.81f;
         }
         else
         {
