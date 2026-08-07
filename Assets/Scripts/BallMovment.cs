@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -10,6 +11,10 @@ public class BallMovment : MonoBehaviour
     [SerializeField] private float addMass = 10f;
 
     [SerializeField] private Transform cameraFollow;
+    [SerializeField] private float massOfBall;
+
+    private Vector3 currentTransfrom;
+    private Vector3 preveiousTransform; 
 
     public float speedofBall = 0;
 
@@ -19,16 +24,27 @@ public class BallMovment : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        currentTransfrom = transform.position;
+        preveiousTransform = currentTransfrom;
     }
     private void FixedUpdate()
     {
         ballMove();
 
-        changeMass();
-
-        debugSpeedOfBall();
+        //debugSpeedOfBall();
 
         applyGravity();
+    }
+    private void Update()
+    {
+        changeMass();
+        checkIfAssendingOrDecending();
+        //StartCoroutine(waitALilBit());
+        currentTransfrom = transform.position;
+    }
+    private void LateUpdate()
+    {
+        preveiousTransform = currentTransfrom;
     }
 
     private void applyGravity()
@@ -62,15 +78,15 @@ public class BallMovment : MonoBehaviour
 
         rb.AddForce(movement * speed);
 
-        Debug.Log(moveHorizontal);
-        Debug.Log(moveVertical);
-        Debug.Log(movement);
+        //Debug.Log(moveHorizontal);
+        //Debug.Log(moveVertical);
+        //Debug.Log(movement);
     }
     private void changeMass()
     {
-        if (Input.GetKey(KeyCode.Space))
+        if (Input.GetButton("Fire1")||Input.GetKey(KeyCode.Space))
         {
-            addMass += 0.3f * 9.81f;
+            addMass = massOfBall;
         }
         else
         {
@@ -79,10 +95,32 @@ public class BallMovment : MonoBehaviour
         rb.mass = addMass;
     }
 
+    private IEnumerator waitALilBit()
+    {
+        currentTransfrom = transform.position;
+        yield return new WaitForSeconds(0.009f);
+        preveiousTransform = currentTransfrom;
+    }
+
     private void debugSpeedOfBall()
     {
         speedofBall = (transform.position - lastPosition).magnitude;
         lastPosition = transform.position;
         //Debug.Log(speedofBall);
+    }
+    private void checkIfAssendingOrDecending()
+    {
+        if(currentTransfrom.y > preveiousTransform.y)
+        {
+            Debug.Log("Assending");
+        }
+        else if(currentTransfrom.y < preveiousTransform.y)
+        {
+            Debug.Log("Decending");
+        }
+        else
+        {
+            Debug.Log("Same Height");
+        }
     }
 }
