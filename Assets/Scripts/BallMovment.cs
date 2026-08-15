@@ -1,22 +1,22 @@
-using System.Collections;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class BallMovment : MonoBehaviour
 {
     [SerializeField] private Rigidbody rb;
 
     [SerializeField] private float speed = 2f;
+    [SerializeField] private float airSpeed = 100;
+    [SerializeField] private float steeringForce = 3f;
 
     [SerializeField] private float addMass = 10f;
 
     [SerializeField] private Transform cameraFollow;
     [SerializeField] private float massOfBall;
 
-    private Vector3 currentTransfrom;
-    private Vector3 preveiousTransform; 
+    public cameraFollow cameraFollowScript;
 
-    public float speedofBall = 0;
+
+    public float speedofBall;
 
     Vector3 lastPosition = Vector3.zero;
 
@@ -24,14 +24,12 @@ public class BallMovment : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        currentTransfrom = transform.position;
-        preveiousTransform = currentTransfrom;
     }
     private void FixedUpdate()
     {
         ballMove();
 
-        //debugSpeedOfBall();
+        debugSpeedOfBall();
 
         applyGravity();
     }
@@ -39,12 +37,6 @@ public class BallMovment : MonoBehaviour
     {
         changeMass();
         checkIfAssendingOrDecending();
-        //StartCoroutine(waitALilBit());
-        currentTransfrom = transform.position;
-    }
-    private void LateUpdate()
-    {
-        preveiousTransform = currentTransfrom;
     }
 
     private void applyGravity()
@@ -67,20 +59,41 @@ public class BallMovment : MonoBehaviour
 
         Vector3 movementDirection = (cameraForward * moveVertical + cameraRight * moveHorizontal);
 
-        if (movementDirection.magnitude > 0.1f)
+        if (cameraFollowScript.isGrounded==true)
         {
-            movement = movementDirection;
+            if (movementDirection.magnitude > 0.1f)
+            {
+                movementDirection.Normalize();
+
+                if (rb.linearVelocity.magnitude > 0.1f)
+                {
+                    Vector3 currentVelocity = rb.linearVelocity;
+                    currentVelocity.y = 0f;
+
+                    Vector3 alignedVelocity = Vector3.Project(currentVelocity, movementDirection);
+
+                    Vector3 sidewaysVelocity = currentVelocity - alignedVelocity;
+
+                    rb.AddForce(-sidewaysVelocity * steeringForce, ForceMode.Acceleration);
+
+                    if (Vector3.Dot(currentVelocity, movementDirection) < 0.1f)
+                    {
+                        rb.AddForce(-alignedVelocity * steeringForce, ForceMode.Acceleration);
+                    }
+                }
+                rb.AddForce(movementDirection * speed, ForceMode.Acceleration);
+            }
+            /*else
+            {
+                Vector3 brake = -rb.linearVelocity;
+                brake.y = 0f;
+                rb.AddForce(brake * 2f, ForceMode.Acceleration);
+            }*/
         }
         else
         {
-            movement = Vector3.zero;
+            rb.AddForce(movement * airSpeed);
         }
-
-        rb.AddForce(movement * speed);
-
-        //Debug.Log(moveHorizontal);
-        //Debug.Log(moveVertical);
-        //Debug.Log(movement);
     }
     private void changeMass()
     {
@@ -95,13 +108,6 @@ public class BallMovment : MonoBehaviour
         rb.mass = addMass;
     }
 
-    private IEnumerator waitALilBit()
-    {
-        currentTransfrom = transform.position;
-        yield return new WaitForSeconds(0.009f);
-        preveiousTransform = currentTransfrom;
-    }
-
     private void debugSpeedOfBall()
     {
         speedofBall = (transform.position - lastPosition).magnitude;
@@ -110,17 +116,13 @@ public class BallMovment : MonoBehaviour
     }
     private void checkIfAssendingOrDecending()
     {
-        if(currentTransfrom.y > preveiousTransform.y)
+        if (rb.linearVelocity.y > 0)
         {
-            Debug.Log("Assending");
+            Debug.Log("Moving up");
         }
-        else if(currentTransfrom.y < preveiousTransform.y)
+        else if (rb.linearVelocity.y < 0)
         {
-            Debug.Log("Decending");
-        }
-        else
-        {
-            Debug.Log("Same Height");
+            Debug.Log("Moving down");
         }
     }
 }
