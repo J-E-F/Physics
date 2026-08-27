@@ -83,16 +83,14 @@ public class BallMovment : MonoBehaviour
                 }
                 rb.AddForce(movementDirection * speed, ForceMode.Acceleration);
             }
-            /*else
-            {
-                Vector3 brake = -rb.linearVelocity;
-                brake.y = 0f;
-                rb.AddForce(brake * 2f, ForceMode.Acceleration);
-            }*/
         }
         else
         {
-            rb.AddForce(movement * airSpeed);
+            if (movementDirection.magnitude > 0.1f)
+            {
+                movementDirection.Normalize();
+                rb.AddForce(movementDirection * airSpeed);
+            }
         }
     }
     private void changeMass()

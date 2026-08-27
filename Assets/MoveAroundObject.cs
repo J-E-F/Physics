@@ -46,7 +46,7 @@ public class MoveAroundObject : MonoBehaviour
         float lookY = isGamepad ? look.y * _stickSensitivity * Time.deltaTime : look.y * _mouseSensitivity;
 
         _rotationY += lookX;
-        _rotationX += lookY;
+        _rotationX -= lookY;
 
         // Apply clamping for x rotation 
         _rotationX = Mathf.Clamp(_rotationX, _rotationXMinMax.x, _rotationXMinMax.y);
