@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class BallMovment : MonoBehaviour
 {
@@ -14,6 +15,8 @@ public class BallMovment : MonoBehaviour
     [SerializeField] private float massOfBall;
 
     public cameraFollow cameraFollowScript;
+
+    public float restartTimer = 0f;
 
 
     public float speedofBall;
@@ -37,6 +40,7 @@ public class BallMovment : MonoBehaviour
     {
         changeMass();
         checkIfAssendingOrDecending();
+        resetLevel();
     }
 
     private void applyGravity()
@@ -121,6 +125,22 @@ public class BallMovment : MonoBehaviour
         else if (rb.linearVelocity.y < 0)
         {
             Debug.Log("Moving down");
+        }
+    }
+    private void resetLevel()
+    {
+        if (Input.GetKey(KeyCode.R))
+        {
+            restartTimer += Time.deltaTime;
+
+            if (restartTimer >= 2f)
+            {
+                UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+            }
+        }
+        if (Input.GetKeyUp(KeyCode.R))
+        {
+            restartTimer = 0f;
         }
     }
 }

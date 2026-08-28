@@ -14,7 +14,8 @@ GameObject:
   - component: {fileID: 7219576316661834645}
   - component: {fileID: 6237197434836472077}
   - component: {fileID: 3857630082659806256}
-  m_Layer: 0
+  - component: {fileID: 6705611083926692614}
+  m_Layer: 8
   m_Name: Sphere
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -29,7 +30,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 267829890542008789}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 323.28, y: 133.53, z: 337.9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -155,7 +156,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BallMovment
   rb: {fileID: 6237197434836472077}
-  speed: 15
+  speed: 7
   airSpeed: 200
   steeringForce: 3
   addMass: 0
@@ -163,6 +164,19 @@ MonoBehaviour:
   massOfBall: 150
   cameraFollowScript: {fileID: 0}
   speedofBall: 0
+--- !u!114 &6705611083926692614
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 267829890542008789}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 767dc002fbbf4dd4784e161d7714eff0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PauseMenu
+  pauseMenuUI: {fileID: 0}
 --- !u!1 &4482175775805252204
 GameObject:
   m_ObjectHideFlags: 0
@@ -173,7 +187,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2612007188158145513}
   - component: {fileID: 8783357353208100203}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Trail
   m_TagString: Untagged
   m_Icon: {fileID: 0}

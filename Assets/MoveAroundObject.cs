@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -26,6 +24,16 @@ public class MoveAroundObject : MonoBehaviour
     [SerializeField]
     private Vector2 _rotationXMinMax = new Vector2(-40, 40);
 
+    public LayerMask collisionMask;
+    public LayerMask playerLayer;
+
+    [Header("Collision Smoothing")]
+    [SerializeField] private float _sphereRadius = 0.3f;
+    [SerializeField] private float _safetyOffset = 0.2f;
+    [SerializeField] private float _minDistanceFromTarget = 0.8f;
+    [SerializeField] private float _collisionSmoothSpeed = 15f;
+    private float _currentSmoothDistance;
+
     private void OnEnable()
     {
         _lookAction.action.Enable();
@@ -34,6 +42,11 @@ public class MoveAroundObject : MonoBehaviour
     private void OnDisable()
     {
         _lookAction.action.Disable();
+    }
+
+    void Start()
+    {
+        _currentSmoothDistance = _distanceFromTarget;
     }
 
     void Update()
@@ -48,13 +61,38 @@ public class MoveAroundObject : MonoBehaviour
         _rotationY += lookX;
         _rotationX -= lookY;
 
-        // Apply clamping for x rotation 
         _rotationX = Mathf.Clamp(_rotationX, _rotationXMinMax.x, _rotationXMinMax.y);
         Vector3 nextRotation = new Vector3(_rotationX, _rotationY);
-        // Apply damping between rotation changes
+
         _currentRotation = Vector3.SmoothDamp(_currentRotation, nextRotation, ref _smoothVelocity, _smoothTime);
         transform.localEulerAngles = _currentRotation;
-        // Subtract forward vector of the GameObject to point its forward vector to the target
-        transform.position = _target.position - transform.forward * _distanceFromTarget;
+    }
+
+    private void LateUpdate()
+    {
+        if (_target == null) return;
+
+        Vector3 targetIdealPosition = _target.position - (transform.forward * _distanceFromTarget);
+        Vector3 rayDirection = (targetIdealPosition - _target.position).normalized;
+        float desiredDistance = _distanceFromTarget;
+
+        if (Physics.SphereCast(_target.position, _sphereRadius, rayDirection, out RaycastHit hitEnvironment, _distanceFromTarget, collisionMask))
+        {
+            desiredDistance = Mathf.Clamp(hitEnvironment.distance - _safetyOffset, _minDistanceFromTarget, _distanceFromTarget);
+        }
+        else
+        {
+            desiredDistance = Mathf.Max(_minDistanceFromTarget, _distanceFromTarget);
+        }
+
+        _currentSmoothDistance = Mathf.Lerp(_currentSmoothDistance, desiredDistance, Time.deltaTime * _collisionSmoothSpeed);
+        transform.position = _target.position - (transform.forward * _currentSmoothDistance);
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, _sphereRadius);
+        Gizmos.DrawLine(transform.position, _target.transform.position);
     }
 }
